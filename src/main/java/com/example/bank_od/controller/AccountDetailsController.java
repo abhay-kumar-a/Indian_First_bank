@@ -42,16 +42,16 @@ public class AccountDetailsController {
     UserAccountDetails accountDetails1 = new UserAccountDetails();
 
     @GetMapping("/balance/{account_id}/{user_id}")
-    Integer getBalance(@PathVariable("account_id") Long account_id ,
-                       @PathVariable("user_id") Long user_id)
+    ResponseEntity<String> getBalance(@PathVariable("account_id") Long account_id ,
+                                      @PathVariable("user_id") Long user_id)
     {
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
         {
-            return userAccountRepo.getBalance(account_id,user_id);
+            return ResponseEntity.ok().body("You account Balance is + : "+ userAccountRepo.getBalance(account_id,user_id)) ;
         }
-        return 0;
+        return ResponseEntity.ok().body("Error: Please check you ID");
 
     }
     // --------------------------------------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class AccountDetailsController {
                                           @PathVariable("user_id") Long user_id,
                                           @PathVariable("deposit") Integer deposit)
     {
-        Integer amount = getBalance(account_id,user_id)+deposit;
+        Integer amount = userAccountRepo.getBalance(account_id,user_id)+deposit;
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
@@ -80,10 +80,10 @@ public class AccountDetailsController {
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
 
-        if(getBalance(account_id,user_id)<withdrawal){
+        if(userAccountRepo.getBalance(account_id,user_id)<withdrawal){
             return ResponseEntity.ok().body("Insufficient Balance");
         }
-        Integer amount = getBalance(account_id,user_id)-withdrawal;
+        Integer amount = userAccountRepo.getBalance(account_id,user_id)-withdrawal;
         userAccountRepo.withdrawal(amount,account_id);
         return ResponseEntity.ok().body("Given amount "+withdrawal+" successfully withdrawal");
     }
@@ -99,7 +99,7 @@ public class AccountDetailsController {
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
         {
-            Integer amount = getBalance(account_id,user_id) * 50/100;
+            Integer amount = userAccountRepo.getBalance(account_id,user_id) * 50/100;
             // update the saving account balance
             userAccountRepo.withdrawal(amount,account_id);
             //
@@ -111,16 +111,16 @@ public class AccountDetailsController {
 
     // get fd_amount  balance
     @GetMapping("/fd_balance/{account_id}/{user_id}")
-    Integer getFdBalance(@PathVariable("account_id") Long account_id ,
-                         @PathVariable("user_id") Long user_id)
+   ResponseEntity<String> getFdBalance(@PathVariable("account_id") Long account_id ,
+                                       @PathVariable("user_id") Long user_id)
     {
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
         {
-            return userAccountRepo.getFdBalance(account_id,user_id);
+            return ResponseEntity.ok().body("You account Balance is + : "+ userAccountRepo.getFdBalance(account_id,user_id)) ;
         }
-        return 0;
+        return ResponseEntity.ok().body("Error: Please check you ID");
 
     }
     // --------------------------------------------------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ public class AccountDetailsController {
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
         {
-            Integer amount = getFdBalance(account_id,user_id) * 80/100;
+            Integer amount = userAccountRepo.getFdBalance(account_id,user_id) * 80/100;
             userAccountRepo.over_draft_open(account_id,amount);
 
             // Fd account balance update
@@ -146,16 +146,16 @@ public class AccountDetailsController {
     // get od balance;
 
     @GetMapping("/od_balance/{account_id}/{user_id}")
-    Integer getOdBalance(@PathVariable("account_id") Long account_id ,
+    ResponseEntity<String>  getOdBalance(@PathVariable("account_id") Long account_id ,
                          @PathVariable("user_id") Long user_id)
     {
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
         if(user_id1.isPresent() && account_id1.isPresent())
         {
-            return userAccountRepo.getOdBalance(account_id,user_id);
+         return ResponseEntity.ok().body("You account Balance is + : "+ userAccountRepo.getOdBalance(account_id,user_id)) ;
         }
-        return 0;
+        return ResponseEntity.ok().body("Error: Please check you ID");
 
     }
     // withdrawal od balance
@@ -167,10 +167,10 @@ public class AccountDetailsController {
         Optional<UserAccountDetails> user_id1 = userAccountRepo.findById(user_id);
         Optional<UserAccountDetails> account_id1 = userAccountRepo.findById(account_id);
 
-        if(getOdBalance(account_id,user_id)<withdrawal){
+        if(userAccountRepo.getOdBalance(account_id,user_id)<withdrawal){
             return ResponseEntity.ok().body("Insufficient Balance");
         }
-        Integer amount = getOdBalance(account_id,user_id)-withdrawal;
+        Integer amount = userAccountRepo.getOdBalance(account_id,user_id)-withdrawal;
         userAccountRepo.withdrawal_od_amount(amount,account_id);
         return ResponseEntity.ok().body("Given amount "+withdrawal+" successfully withdrawal");
     }
@@ -193,7 +193,7 @@ public class AccountDetailsController {
 //                    Integer amount = userAccountRepo.getFdBalance(account_id, user_id);
 //                    // after close the fd account  remaining balance of fd amount will be deposited in SB account
 //                    userAccountRepo.deposit(userAccountRepo.getBalance(account_id, user_id) + amount, account_id);
-                    userAccountRepo.fixed_deposit_open(account_id,-1);
+                    userAccountRepo.fixed_deposit_open(account_id,null);
 
                     // make fd running status close
                     userAccountRepo.update_fd_running_status(true, account_id);
@@ -241,7 +241,7 @@ public class AccountDetailsController {
 
         if(user_id1.isPresent() && account_id1.isPresent()) {
             if (userAccountRepo.close_account(account_id, user_id).equalsIgnoreCase("close")) {
-                Integer amount = -1;
+                Integer amount = null; // set overDraft amount
                 userAccountRepo.over_draft_open(account_id, amount);
                 userAccountRepo.update_od_running_status(true, account_id);
                 // pay to withdrawal amount to the bank , from SB account   , also add 1% interest

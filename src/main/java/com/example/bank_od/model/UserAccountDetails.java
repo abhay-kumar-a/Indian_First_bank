@@ -14,12 +14,9 @@ public class UserAccountDetails {
     Integer account_balance;
     Integer deposit;
     Integer withdrawal;
-
     Integer fixed_deposit_amount;
-
     Integer over_draft_amount;
     Float year;
-
     String close_bank="close";
     Boolean fd_running_status=false;
     Boolean od_running_status=false;

@@ -34,7 +34,6 @@ public interface UserAccountRepo extends JpaRepository<UserAccountDetails,Long> 
     // get fd balance
     @Query(value = "select fixed_deposit_amount from user_account WHERE account_id =:account_id and user_id =:user_id ",nativeQuery = true)
     Integer getFdBalance(@Param("account_id") Long account_id,@Param("user_id") Long user_id);
-
     @Modifying
     @Query(value ="UPDATE user_account SET fixed_deposit_amount = :amount WHERE account_id =:account_id" , nativeQuery = true)
     @Transactional
